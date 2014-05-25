@@ -112,11 +112,16 @@ server_loop(int sock) {
 	fd_set fdSet;
 	struct timeval timeout;
 
-	timeout.tv_sec = 10;
-	timeout.tv_usec = 0;
 
 	while (1) {
 		populate_fd_set(file_desc_list, &fdSet);
+
+		/*
+		 * Must set the timeout every time prior to calling select.
+		 * This is needed in linux where select modifies the timeout structure.
+		 */
+		timeout.tv_sec = 10;
+		timeout.tv_usec = 0;
 
 		int numEvents = select(FD_SETSIZE, &fdSet, NULL, NULL, &timeout);
 		DIE(numEvents, "select() failed.");
@@ -165,6 +170,9 @@ main() {
 	int sock = socket(PF_INET, SOCK_STREAM, 0);
 
 	DIE(sock, "Failed to open socket.");
+
+	int reuse = 1;
+	setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof reuse);
 
 	struct sockaddr_in addr;
 
