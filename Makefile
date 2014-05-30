@@ -1,9 +1,13 @@
 CC=gcc
 CFLAGS=-std=c99
-OBJS=test-server.o
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-test-server: $(OBJS)
-	gcc -o test-server $(OBJS)
+all: test-client test-server
+
+test-client: test-client.o
+	gcc -o test-client test-client.o
+
+test-server: test-server.o
+	gcc -o test-server test-server.o
